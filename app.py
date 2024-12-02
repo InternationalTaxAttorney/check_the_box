@@ -342,7 +342,7 @@ def index():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
 application = app
 
 # tried to use htmx, but couldn't get mermaid to redraw the chart for Next Question
