@@ -1,0 +1,426 @@
+[
+    {
+        "country_name": "Argentina",
+        "language": "Spanish",
+        "per se corporation": "Sociedad Anonima",
+        "per se corporation abbreviation": "SA",
+        "eligible with limited liability": [
+            {
+                "name": "Sociedad de Responsabilidad Limitada",
+                "abbreviation": "SRL"
+            }
+        ],
+        "eligible with unlimited liability": [
+            {
+                "name": "",
+                "abbreviation": ""
+            }
+        ]
+    },
+    {
+        "country_name": "Australia",
+        "language": "English",
+        "per se corporation": "Public Limited Company",
+        "per se corporation abbreviation": "PLC",
+        "eligible with limited liability": [
+            {
+                "name": "Proprietary Limited",
+                "abbreviation": "Pty. Ltd."
+            }
+        ],
+        "eligible with unlimited liability": [
+            {
+                "name": "",
+                "abbreviation": ""
+            }
+        ]
+    },
+    {
+        "country_name": "Austria",
+        "language": "German",
+        "per se corporation": "Aktiengesellschaft",
+        "per se corporation abbreviation": "AG",
+        "eligible with limited liability": [
+            {
+                "name": "Gesellschaft mit beschrankter Haftung",
+                "abbreviation": "GmbH"
+            }
+        ],
+        "eligible with unlimited liability": [
+            {
+                "name": "",
+                "abbreviation": ""
+            }
+        ]
+    },
+    {
+        "country_name": "Belgium",
+        "language": "French",
+        "per se corporation": "Societe Anonyme",
+        "per se corporation abbreviation": "SA",
+        "eligible with limited liability": [
+            {
+                "name": "Société à Responsabilité Limitée",
+                "abbreviation": "Sarl"
+            }
+        ],
+        "eligible with unlimited liability": [
+            {
+                "name": "",
+                "abbreviation": ""
+            }
+        ]
+    },
+    {
+        "country_name": "Brazil",
+        "language": "Portuguese",
+        "per se corporation": "Sociedade Anonima",
+        "per se corporation abbreviation": "SA",
+        "eligible with limited liability": [
+            {
+                "name": "Sociedade Limitada",
+                "abbreviation": "Ltda."
+            }
+        ],
+        "eligible with unlimited liability": [
+            {
+                "name": "",
+                "abbreviation": ""
+            }
+        ]
+    },
+    {
+        "country_name": "Canada",
+        "language": "English",
+        "per se corporation": "Limited",
+        "per se corporation abbreviation": "Ltd.",
+        "eligible with limited liability": [
+            {
+                "name": "",
+                "abbreviation": ""
+            }
+        ],
+        "eligible with unlimited liability": [
+            {
+                "name": "Unlimited Liability Company",
+                "abbreviation": "ULC"
+            }
+        ]
+    },
+    {
+        "country_name": "Chile",
+        "language": "Spanish",
+        "per se corporation": "Sociedad Anónima",
+        "per se corporation abbreviation": "SA",
+        "eligible with limited liability": [
+            {
+                "name": "Sociedad de Responsabilidad Limitada",
+                "abbreviation": "SRL"
+            },
+            {
+                "name": "Sociedad Por Acciones",
+                "abbreviation": "SPA"
+            }
+        ],
+        "eligible with unlimited liability": [
+            {
+                "name": "",
+                "abbreviation": ""
+            }
+        ]
+    },
+    {
+        "country_name": "Cayman Islands",
+        "language": "English",
+        "per se corporation": "",
+        "per se corporation abbreviation": "",
+        "eligible with limited liability": [
+            {
+                "name": "Limited",
+                "abbreviation": "Ltd."
+            }
+        ],
+        "eligible with unlimited liability": [
+            {
+                "name": "General Partnership",
+                "abbreviation": "GP"
+            },
+            {
+                "name": "Limited Partnership",
+                "abbreviation": "LP"
+            }
+        ]
+    },
+    {
+        "country_name": "Colombia",
+        "language": "Spanish",
+        "per se corporation": "Sociedad Anonima",
+        "per se corporation abbreviation": "SA",
+        "eligible with limited liability": [
+            {
+                "name": "Sociedad de Responsabilidad Limitada",
+                "abbreviation": "SRL"
+            }
+        ],
+        "eligible with unlimited liability": [
+            {
+                "name": "Sociedad Colectiva",
+                "abbreviation": "SC"
+            }
+        ]
+    },
+    {
+        "country_name": "France",
+        "language": "French",
+        "per se corporation": "Société Anonyme",
+        "per se corporation abbreviation": "SA",
+        "eligible with limited liability": [
+            {
+                "name": "Société par actions simplifiée",
+                "abbreviation": "SAS"
+            },
+            {
+                "name": "Société à responsabilité limitée",
+                "abbreviation": "SARL"
+            }
+        ],
+        "eligible with unlimited liability": [
+            {
+                "name": "",
+                "abbreviation": ""
+            }
+        ]
+    },
+    {
+        "country_name": "Germany",
+        "language": "German",
+        "per se corporation": "Aktiengesellschaft",
+        "per se corporation abbreviation": "AG",
+        "eligible with limited liability": [
+            {
+                "name": "Gesellschaft mit beschrankter Haftung",
+                "abbreviation": "GmbH"
+            }
+        ],
+        "eligible with unlimited liability": [
+            {
+                "name": "",
+                "abbreviation": ""
+            }
+        ]
+    },
+    {
+        "country_name": "Hong Kong",
+        "language": "English",
+        "per se corporation": "Public Limited Company",
+        "per se corporation abbreviation": "PLC",
+        "eligible with limited liability": [
+            {
+                "name": "Limited",
+                "abbreviation": "Ltd."
+            }
+        ],
+        "eligible with unlimited liability": [
+            {
+                "name": "",
+                "abbreviation": ""
+            }
+        ]
+    },
+    {
+        "country_name": "India",
+        "language": "English",
+        "per se corporation": "Public Limited Company",
+        "per se corporation abbreviation": "PLC",
+        "eligible with limited liability": [
+            {
+                "name": "Private Limited",
+                "abbreviation": "Pvt. Ltd."
+            }
+        ],
+        "eligible with unlimited liability": [
+            {
+                "name": "",
+                "abbreviation": ""
+            }
+        ]
+    },
+    {
+        "country_name": "Ireland",
+        "language": "English",
+        "per se corporation": "Public Limited Company",
+        "per se corporation abbreviation": "PLC",
+        "eligible with limited liability": [
+            {
+                "name": "Limited",
+                "abbreviation": "Ltd."
+            }
+        ],
+        "eligible with unlimited liability": [
+            {
+                "name": "",
+                "abbreviation": ""
+            }
+        ]
+    },
+    {
+        "country_name": "Japan",
+        "language": "Japanese",
+        "per se corporation": "Kabushiki Kaisha",
+        "per se corporation abbreviation": "KK",
+        "eligible with limited liability": [
+            {
+                "name": "Godo-Kaisha",
+                "abbreviation": "GK"
+            }
+        ],
+        "eligible with unlimited liability": [
+            {
+                "name": "",
+                "abbreviation": ""
+            }
+        ]
+    },
+    {
+        "country_name": "Mexico",
+        "language": "Spanish",
+        "per se corporation": "Sociedad Anonima",
+        "per se corporation abbreviation": "SA",
+        "eligible with limited liability": [
+            {
+                "name": "Sociedad de Responsabilidad Limitada",
+                "abbreviation": "SRL"
+            }
+        ],
+        "eligible with unlimited liability": [
+            {
+                "name": "",
+                "abbreviation": ""
+            }
+        ]
+    },
+    {
+        "country_name": "Netherlands",
+        "language": "Dutch",
+        "per se corporation": "Naamloze Vennootschap",
+        "per se corporation abbreviation": "NV",
+        "eligible with limited liability": [
+            {
+                "name": "Besloten vennootschap",
+                "abbreviation": "BV"
+            }
+        ],
+        "eligible with unlimited liability": [
+            {
+                "name": "",
+                "abbreviation": ""
+            }
+        ]
+    },
+    {
+        "country_name": "New Zealand",
+        "language": "English",
+        "per se corporation": "Limited",
+        "per se corporation abbreviation": "Ltd.",
+        "eligible with limited liability": [
+            {
+                "name": "",
+                "abbreviation": ""
+            }
+        ],
+        "eligible with unlimited liability": [
+            {
+                "name": "",
+                "abbreviation": ""
+            }
+        ]
+    },
+    {
+        "country_name": "Puerto Rico",
+        "language": "English",
+        "per se corporation": "Corporation",
+        "per se corporation abbreviation": "Corp.",
+        "eligible with limited liability": [
+            {
+                "name": "Limited Liability Company",
+                "abbreviation": "LLC"
+            }
+        ],
+        "eligible with unlimited liability": [
+            {
+                "name": "",
+                "abbreviation": ""
+            }
+        ]
+    },
+    {
+        "country_name": "Singapore",
+        "language": "English",
+        "per se corporation": "Public Limited Company",
+        "per se corporation abbreviation": "PLC",
+        "eligible with limited liability": [
+            {
+                "name": "Private Limited",
+                "abbreviation": "Pte. Ltd."
+            },
+            {
+                "name": "Limited Liability Partnership",
+                "abbreviation": "LLP"
+            }
+        ],
+        "eligible with unlimited liability": [
+            {
+                "name": "General Partnership",
+                "abbreviation": "GP"
+            },
+            {
+                "name": "Limited Partnership",
+                "abbreviation": "LP"
+            }
+        ]
+    },
+    {
+        "country_name": "Spain",
+        "language": "Spanish",
+        "per se corporation": "Sociedad Anónima",
+        "per se corporation abbreviation": "SA",
+        "eligible with limited liability": [
+            {
+                "name": "Sociedad Limitada",
+                "abbreviation": "SL"
+            }
+        ],
+        "eligible with unlimited liability": [
+            {
+                "name": "",
+                "abbreviation": ""
+            }
+        ]
+    },
+    {
+        "country_name": "United Kingdom",
+        "language": "English",
+        "per se corporation": "Public Limited Company",
+        "per se corporation abbreviation": "PLC",
+        "eligible with limited liability": [
+            {
+                "name": "Limited",
+                "abbreviation": "Ltd."
+            },
+            {
+                "name": "Limited Liability Partnership",
+                "abbreviation": "LLP"
+            }
+        ],
+        "eligible with unlimited liability": [
+            {
+                "name": "General Partnership",
+                "abbreviation": "GP"
+            },
+            {
+                "name": "Limited  Partnership",
+                "abbreviation": "LP"
+            }
+        ]
+    }
+]

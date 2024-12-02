@@ -1,0 +1,100 @@
+{% extends 'header_footer.html' %}
+{% block content %}
+
+<div id="quiz-container">
+    <div class="row mb-2">
+        <h1>Practice Problems on Check-the-Box Rules</h1>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <p>{{ problem }}</p>
+        </div>
+    </div>
+        
+    <div class="row mb-2">
+        <div class="col-1"></div>
+        <div class="col-sm-5 col-md-3 col-lg-3">
+            <div id="chart-container" class="mermaid">
+                graph TD
+                A(({{ name1 }})) --- C("{{ entity.entity_name }}, {{ entity.entity_suffix }}\n({{ entity.country }}{{ "" if foreign else ", USA" }})")
+                {{ "" if single_member else "B((" + name2 + ")) --- C" }}
+                style C fill:#{{ "9CF" if foreign else "FFF" }},stroke:#000,stroke-width:2px
+            </div>
+        </div>
+        <div class="col-6">
+            <p>&nbsp;</p>
+            <p>Blue entity means foreign.</p>
+            <p>White entity means U.S.</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <label for="answer-dropdown">Select your answer:</label>
+            <select id="answer-dropdown">
+                {% for option in judgments.keys() %}
+                    <option value="{{ loop.index0 }}">{{ option }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-1"></div>
+        <div class="col-11">
+            <p>
+                <button onclick="displayResponse()" class="btn btn-primary">Submit Answer</button>&nbsp;&nbsp;
+                <button onclick="refreshPage()" class="btn btn-secondary">Next Question</button>
+            </p>
+            <p id="response-paragraph"></p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            {% for response in judgments.values() %}
+                <div id="{{ loop.index0 }}" class="response" style="display:none;">{{ response | safe }}</div>
+            {% endfor %}    
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-12">
+            <p>The code for this web page is significantly based on code created by <a href="https://www.sarahlawsky.org/">Professor Sarah Lawsky</a> on her <a href="https://www.lawskypracticeproblems.org/">practice problems page</a>.  The code for this page is licensed under the <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">GNU AGLP license</a>, and the code can be found on <a href="https://github.com/InternationalTaxAttorney">my Github page</a>.</p>
+        </div>
+    </div>
+
+</div>
+
+<!-- <script src="https://unpkg.com/htmx.org"></script> -->
+<script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true });
+</script>
+
+<script>
+    function displayResponse() {
+        // make all four divs hidden (in case one was already displayed)
+        const responseDivs = document.querySelectorAll('.response');
+        responseDivs.forEach(div => {
+            div.style.display = "none";
+        });
+
+        // get the number of the answer selected and display the response
+        const selectedOption = document.getElementById('answer-dropdown').value;
+        const responseDiv = document.getElementById(selectedOption);
+        responseDiv.style.display = "block";
+    }
+    function clearResponse() {
+        // make all four divs hidden
+        const responseDivs = document.querySelectorAll('.response');
+        responseDivs.forEach(div => {
+            div.style.display = "none";
+        });
+    }
+    function refreshPage() {
+        location.reload();
+    }
+</script>
+
+{% endblock %}

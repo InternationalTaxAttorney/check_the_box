@@ -1,0 +1,29 @@
+{
+    "language": "English",
+    "per se corporation": "corporation",
+    "per se corporation abbreviations": [
+        "Inc.",
+        "Co.",
+        "Corp"
+    ],
+    "eligible with limited liability": [
+        {
+            "name": "Limited Liability Company",
+            "abbreviation": "LLC"
+        },
+        {
+            "name": "Limited Liability Partnership",
+            "abbreviation": "LLP"
+        }
+    ],
+    "eligible with unlimited liability": [
+        {
+            "name": "General Partnership",
+            "abbreviation": "GP"
+        },
+        {
+            "name": "Limited Partnership",
+            "abbreviation": "LP"
+        }
+    ]
+}
