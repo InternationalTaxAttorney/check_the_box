@@ -101,7 +101,7 @@ def create_problem_and_answers() -> tuple[str, dict, BusinessEntity, bool, bool]
     yes_elect_partnership = "Yes, and its elective status is a partnership."
     yes_elect_corp = "Yes, and its elective status is a corporation."
 
-    general_explanation = 'Under <a href="https://www.law.cornell.edu/cfr/text/26/301.7701-3">Treas. Reg. §301.7701-3(a)</a>, an entity is eligible to elect its business classification if and only if it is not classified as a corporation under <a href="https://www.law.cornell.edu/cfr/text/26/301.7701-2#b">Treas. Reg. §301.7701-2(b)</a>--that is, if and only if it is not a per se corporation.'
+    general_explanation = f'Under <a href="{corn_reg}301.7701-3">{treas}301.7701-3(a)</a>, an entity is eligible to elect its business classification if and only if it is not classified as a corporation under <a href="{corn_reg}301.7701-2#b">{treas}301.7701-2(b)</a>--that is, if and only if it is not a per se corporation.'
 
     general_statement_no_per_se = f"{pick_a_an(entity.entity_type).capitalize()} {entity.entity_type} is not a per se corporation under this regulation and is therefore eligible to check the box."
 
@@ -121,15 +121,15 @@ def create_problem_and_answers() -> tuple[str, dict, BusinessEntity, bool, bool]
             for possible_answer in possible_answers:
                 if possible_answer == correct_answer:
                     if foreign:
-                        citation = "Treas. Reg. §301.7701-2(b)(8)"
+                        citation = f"{treas}301.7701-2(b)(8)"
                     else:
-                        citation = "Treas. Reg. §301.7701-2(b)(1)"
+                        citation = f"{treas}301.7701-2(b)(1)"
 
-                    explanation = f'<p style="background-color: rgba(193, 254, 93, 0.5);">That is correct. {general_explanation} {to_capital(pick_a_an(entity.entity_type))} {entity.entity_type} organized in {entity.country} is a per se corporation under <a href="https://www.law.cornell.edu/cfr/text/26/301.7701-2#b">{citation}</a>.</p>'
+                    explanation = f'<p {style_green}>That is correct. {general_explanation} {to_capital(pick_a_an(entity.entity_type))} {entity.entity_type} organized in {entity.country} is a per se corporation under <a href="{corn_reg}301.7701-2#b">{citation}</a>.</p>'
 
                 # user selected wrong answer
                 else:
-                    explanation = f'<p style="background-color: rgba(254, 113, 93, 0.5);">Consider what constitutes a per se corporation, as described in <a href="https://www.law.cornell.edu/cfr/text/26/301.7701-2#b">Treas. Reg. §301.7701-2(b)</a>.</p>'
+                    explanation = f'<p {style_red}>Consider what constitutes a per se corporation, as described in <a href="{corn_reg}301.7701-2#b">{treas}301.7701-2(b)</a>.</p>'
 
                 judgments[possible_answer] = explanation
         # ------------------------------------------------
@@ -140,20 +140,20 @@ def create_problem_and_answers() -> tuple[str, dict, BusinessEntity, bool, bool]
 
                 if foreign:
                     if possible_answer == correct_answer:
-                        explanation = f'<p style="background-color: rgba(193, 254, 93, 0.5);">That is correct. {general_explanation} {general_statement_no_per_se} <a href="https://www.law.cornell.edu/cfr/text/26/301.7701-3#b">Treas. Reg. §301.7701-3(b)(2)(i)</a> states that a foreign entity in which {liability_language[:-1].lower()} and that {member_language[:-1].lower()} defaults to {pick_a_an(entity.default_choice)} {entity.default_choice}.</p>'
+                        explanation = f'<p {style_green}>That is correct. {general_explanation} {general_statement_no_per_se} <a href="{corn_reg}301.7701-3#b">{treas}301.7701-3(b)(2)(i)</a> states that a foreign entity in which {liability_language[:-1].lower()} and that {member_language[:-1].lower()} defaults to {pick_a_an(entity.default_choice)} {entity.default_choice}.</p>'
                     elif possible_answer == no_because_per_se:
-                        explanation = f'<p style="background-color: rgba(254, 113, 93, 0.5);">Consider what constitutes a per se corporation, as described in <a href="https://www.law.cornell.edu/cfr/text/26/301.7701-2#b">Treas. Reg. §301.7701-2(b)</a>.</p>'
+                        explanation = f'<p {style_red}>Consider what constitutes a per se corporation, as described in <a href="{corn_reg}301.7701-2#b">{treas}301.7701-2(b)</a>.</p>'
                     else:
-                        explanation = f'<p style="background-color: rgba(254, 113, 93, 0.5);">Consider the default status discussed in <a href="https://www.law.cornell.edu/cfr/text/26/301.7701-3#b">Treas. Reg. §301.7701-3(b)(2)(i)</a>. Focus on how many members the entity has and whether any member has unlimited liability.</p>'
+                        explanation = f'<p {style_red}>Consider the default status discussed in <a href="{corn_reg}301.7701-3#b">{treas}301.7701-3(b)(2)(i)</a>. Focus on how many members the entity has and whether any member has unlimited liability.</p>'
 
                 # US entity
                 else:
                     if possible_answer == correct_answer:
-                        explanation = f'<p style="background-color: rgba(193, 254, 93, 0.5);">That is correct. {general_explanation} {general_statement_no_per_se} <a href="https://www.law.cornell.edu/cfr/text/26/301.7701-3#b">Treas. Reg. §301.7701-3(b)(1)</a> states a domestic (U.S.) entity which {member_language[:-1].lower()} defaults to {pick_a_an(entity.default_choice)} {entity.default_choice}.</p>'
+                        explanation = f'<p {style_green}>That is correct. {general_explanation} {general_statement_no_per_se} <a href="{corn_reg}301.7701-3#b">{treas}301.7701-3(b)(1)</a> states a domestic (U.S.) entity which {member_language[:-1].lower()} defaults to {pick_a_an(entity.default_choice)} {entity.default_choice}.</p>'
                     elif possible_answer == no_because_per_se:
-                        explanation = f'<p style="background-color: rgba(254, 113, 93, 0.5);">Consider what constitutes a per se corporation, as described in <a href="https://www.law.cornell.edu/cfr/text/26/301.7701-2#b">Treas. Reg. §301.7701-2(b)</a>.</p>'
+                        explanation = f'<p {style_red}>Consider what constitutes a per se corporation, as described in <a href="{corn_reg}301.7701-2#b">{treas}301.7701-2(b)</a>.</p>'
                     else:
-                        explanation = f'<p style="background-color: rgba(254, 113, 93, 0.5);">Consider the default status discussed in <a href="https://www.law.cornell.edu/cfr/text/26/301.7701-3#b">Treas. Reg. §301.7701-3(b)(1)</a>. Focus on how many members the entity has.</p>'
+                        explanation = f'<p {style_red}>Consider the default status discussed in <a href="{corn_reg}301.7701-3#b">{treas}301.7701-3(b)(1)</a>. Focus on how many members the entity has.</p>'
                 judgments[possible_answer] = explanation
         # ------------------------------------------------
 
@@ -165,14 +165,14 @@ def create_problem_and_answers() -> tuple[str, dict, BusinessEntity, bool, bool]
             for possible_answer in possible_answers:
                 if possible_answer == correct_answer:
                     if foreign:
-                        citation = "Treas. Reg. §301.7701-2(b)(8)"
+                        citation = f"{treas}301.7701-2(b)(8)"
                     else:
-                        citation = "Treas. Reg. §301.7701-2(b)(1)"
+                        citation = f"{treas}301.7701-2(b)(1)"
 
-                    explanation = f'<p style="background-color: rgba(193, 254, 93, 0.5);">That is correct. {general_explanation} {to_capital(pick_a_an(entity.entity_type))} {entity.entity_type} organized in {entity.country} is a per se corporation under <a href="https://www.law.cornell.edu/cfr/text/26/301.7701-2#b">{citation}</a>.</p>'
+                    explanation = f'<p {style_green}>That is correct. {general_explanation} {to_capital(pick_a_an(entity.entity_type))} {entity.entity_type} organized in {entity.country} is a per se corporation under <a href="{corn_reg}301.7701-2#b">{citation}</a>.</p>'
 
                 else:
-                    explanation = f'<p style="background-color: rgba(254, 113, 93, 0.5);">Consider what constitutes a per se corporation, as described in <a href="https://www.law.cornell.edu/cfr/text/26/301.7701-2#b">Treas. Reg. §301.7701-2(b)</a>.</p>'
+                    explanation = f'<p {style_red}>Consider what constitutes a per se corporation, as described in <a href="{corn_reg}301.7701-2#b">{treas}301.7701-2(b)</a>.</p>'
 
                 judgments[possible_answer] = explanation
         # ------------------------------------------------
@@ -183,22 +183,22 @@ def create_problem_and_answers() -> tuple[str, dict, BusinessEntity, bool, bool]
                 if foreign:
                     if possible_answer == correct_answer:
                         if liability_language == "At least one member of the entity has unlimited liability.":
-                            explanation = f'<p style="background-color: rgba(193, 254, 93, 0.5);">That is correct. {general_explanation} {general_statement_no_per_se} <a href="https://www.law.cornell.edu/cfr/text/26/301.7701-3#b_2">Treas. Reg. §301.7701-3(b)(2)(i)</a> states that a foreign entity in which {liability_language[:-1].lower()} may elect to be {pick_a_an(entity.elective_choice)} {entity.elective_choice}.</p>'
+                            explanation = f'<p {style_green}>That is correct. {general_explanation} {general_statement_no_per_se} <a href="{corn_reg}301.7701-3#b_2">{treas}301.7701-3(b)(2)(i)</a> states that a foreign entity in which {liability_language[:-1].lower()} may elect to be {pick_a_an(entity.elective_choice)} {entity.elective_choice}.</p>'
                         else:
-                            explanation = f'<p style="background-color: rgba(193, 254, 93, 0.5);">That is correct. {general_explanation} {general_statement_no_per_se} <a href="https://www.law.cornell.edu/cfr/text/26/301.7701-3#b_2">Treas. Reg. §301.7701-3(b)(2)(i)</a> states that a foreign entity in which {liability_language[:-1].lower()} and that {member_language[:-1].lower()} may elect to be {pick_a_an(entity.elective_choice)} {entity.elective_choice}.</p>'
+                            explanation = f'<p {style_green}>That is correct. {general_explanation} {general_statement_no_per_se} <a href="{corn_reg}301.7701-3#b_2">{treas}301.7701-3(b)(2)(i)</a> states that a foreign entity in which {liability_language[:-1].lower()} and that {member_language[:-1].lower()} may elect to be {pick_a_an(entity.elective_choice)} {entity.elective_choice}.</p>'
                     elif possible_answer == no_because_per_se:
-                        explanation = f'<p style="background-color: rgba(254, 113, 93, 0.5);">Consider what constitutes a per se corporation, as described in <a href="https://www.law.cornell.edu/cfr/text/26/301.7701-2#b">Treas. Reg. §301.7701-2(b)</a>.</p>'
+                        explanation = f'<p {style_red}>Consider what constitutes a per se corporation, as described in <a href="{corn_reg}301.7701-2#b">{treas}301.7701-2(b)</a>.</p>'
                     else:
-                        explanation = f'<p style="background-color: rgba(254, 113, 93, 0.5);">Consider the elective status discussed in <a href="https://www.law.cornell.edu/cfr/text/26/301.7701-3">Treas. Reg. §301.7701-3(a) and (b)</a>. Focus on how many members the entity has and whether any member has unlimited liability.</p>'
+                        explanation = f'<p {style_red}>Consider the elective status discussed in <a href="{corn_reg}301.7701-3">{treas}301.7701-3(a) and (b)</a>. Focus on how many members the entity has and whether any member has unlimited liability.</p>'
 
                 # US entity
                 else:
                     if possible_answer == correct_answer:
-                        explanation = f'<p style="background-color: rgba(193, 254, 93, 0.5);">That is correct. {general_explanation} {general_statement_no_per_se} <a href="https://www.law.cornell.edu/cfr/text/26/301.7701-3#b">Treas. Reg. §301.7701-3(b)(1)</a> states a domestic (U.S.) entity which is not a per se corporation may, regardless of its number of members, elect into {pick_a_an(entity.elective_choice)} {entity.elective_choice}.</p>'
+                        explanation = f'<p {style_green}>That is correct. {general_explanation} {general_statement_no_per_se} <a href="{corn_reg}301.7701-3#b">{treas}301.7701-3(b)(1)</a> states a domestic (U.S.) entity which is not a per se corporation may, regardless of its number of members, elect into {pick_a_an(entity.elective_choice)} {entity.elective_choice}.</p>'
                     elif possible_answer == no_because_per_se:
-                        explanation = f'<p style="background-color: rgba(254, 113, 93, 0.5);">Consider what constitutes a per se corporation, as described in <a href="https://www.law.cornell.edu/cfr/text/26/301.7701-2#b">Treas. Reg. §301.7701-2(b)</a>.</p>'
+                        explanation = f'<p {style_red}>Consider what constitutes a per se corporation, as described in <a href="{corn_reg}301.7701-2#b">{treas}301.7701-2(b)</a>.</p>'
                     else:
-                        explanation = f'<p style="background-color: rgba(254, 113, 93, 0.5);">Consider the elective status discussed in <a href="https://www.law.cornell.edu/cfr/text/26/301.7701-3">Treas. Reg. §301.7701-3(a)(1)</a> for domestic (U.S.) entities.</p>'
+                        explanation = f'<p {style_red}>Consider the elective status discussed in <a href="{corn_reg}301.7701-3">{treas}301.7701-3(a)(1)</a> for domestic (U.S.) entities.</p>'
                 judgments[possible_answer] = explanation
 
     return problem, judgments, entity, foreign, single_member
@@ -313,6 +313,11 @@ class Config:
     SECRET_KEY = os.getenv("FLASK_SECRET_KEY")
 
 
+treas = "Treas. Reg. §"
+corn_reg = "https://www.law.cornell.edu/cfr/text/26/"
+style_green = 'style="background-color: rgba(193, 254, 93, 0.5);"'
+style_red = 'style="background-color: rgba(254, 113, 93, 0.5);"'
+
 app = Flask(__name__)
 load_dotenv()
 app.config.from_object(Config)
@@ -342,7 +347,7 @@ def index():
 
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    app.run(debug=True)
 application = app
 
 # tried to use htmx, but couldn't get mermaid to redraw the chart for Next Question
