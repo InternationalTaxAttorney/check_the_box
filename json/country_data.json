@@ -2,7 +2,7 @@
     {
         "country_name": "Argentina",
         "language": "Spanish",
-        "per se corporation": "Sociedad Anonima",
+        "per se corporation": "Sociedad Anónima",
         "per se corporation abbreviation": "SA",
         "eligible with limited liability": [
             {
@@ -56,7 +56,7 @@
     {
         "country_name": "Belgium",
         "language": "French",
-        "per se corporation": "Societe Anonyme",
+        "per se corporation": "Société Anonyme",
         "per se corporation abbreviation": "SA",
         "eligible with limited liability": [
             {
@@ -74,7 +74,7 @@
     {
         "country_name": "Brazil",
         "language": "Portuguese",
-        "per se corporation": "Sociedade Anonima",
+        "per se corporation": "Sociedade Anônima",
         "per se corporation abbreviation": "SA",
         "eligible with limited liability": [
             {
@@ -154,7 +154,7 @@
     {
         "country_name": "Colombia",
         "language": "Spanish",
-        "per se corporation": "Sociedad Anonima",
+        "per se corporation": "Sociedad Anónima",
         "per se corporation abbreviation": "SA",
         "eligible with limited liability": [
             {
@@ -186,8 +186,8 @@
         ],
         "eligible with unlimited liability": [
             {
-                "name": "",
-                "abbreviation": ""
+                "name": "Société Civile Immobilière",
+                "abbreviation": "SCI"
             }
         ]
     },
@@ -284,7 +284,7 @@
     {
         "country_name": "Mexico",
         "language": "Spanish",
-        "per se corporation": "Sociedad Anonima",
+        "per se corporation": "Sociedad Anónima",
         "per se corporation abbreviation": "SA",
         "eligible with limited liability": [
             {
@@ -326,24 +326,6 @@
             {
                 "name": "",
                 "abbreviation": ""
-            }
-        ],
-        "eligible with unlimited liability": [
-            {
-                "name": "",
-                "abbreviation": ""
-            }
-        ]
-    },
-    {
-        "country_name": "Puerto Rico",
-        "language": "English",
-        "per se corporation": "Corporation",
-        "per se corporation abbreviation": "Corp.",
-        "eligible with limited liability": [
-            {
-                "name": "Limited Liability Company",
-                "abbreviation": "LLC"
             }
         ],
         "eligible with unlimited liability": [
