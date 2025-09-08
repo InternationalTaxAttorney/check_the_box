@@ -1,354 +1,403 @@
 import json
-import os
 import random
+from dataclasses import dataclass
 
-from dotenv import load_dotenv
-from flask import Flask, redirect, render_template
+from flask import Flask, render_template
 
-with open("json/animalsbycountry.json", "r", encoding="utf-8") as f:
+app = Flask(__name__)
+
+# entity names are based on animal names
+with open('json/animalsbycountry.json', 'r', encoding='utf-8') as f:
     animals_by_country = json.load(f)
 
-with open("json/country_data.json", "r", encoding="utf-8") as f:
-    country_data = json.load(f)
-
-with open("json/names.json", "r", encoding="utf-8") as f:
+# person names are used for owners of entities
+with open('json/names.json', 'r', encoding='utf-8') as f:
     names = json.load(f)
 
-with open("json/states.json", "r", encoding="utf-8") as f:
+# a list of the 50 states
+with open('json/states.json', 'r', encoding='utf-8') as f:
     states = json.load(f)
 
-with open("json/us_data.json", "r", encoding="utf-8") as f:
+# names of per se, elig with ltd liab, elig with unltd liab by country
+with open('json/country_data.json', 'r', encoding='utf-8') as f:
+    country_data = json.load(f)
+
+# names of per se, elig with ltd liab, elig with unltd liab for US only
+with open('json/us_data.json', 'r', encoding='utf-8') as f:
     US_data = json.load(f)
 
 
+@dataclass(slots=True)
 class BusinessEntity:
-    def __init__(self, country, entity_type, entity_suffix, entity_name, default_choice, elective_choice):
-        self.country = country
-        self.entity_type = entity_type
-        self.entity_suffix = entity_suffix
-        self.entity_name = entity_name
-        self.default_choice = default_choice
-        self.elective_choice = elective_choice
+    foreign: bool | None = None
+    per_se: bool | None = None
+    all_mems_ltd_liab: bool | None = None
+    single_member: bool | None = None
+    default: bool | None = None
+    elect: bool | None = None  # opposite of default
+    name: str | None = None
+    type_long_form: str | None = None
+    type_short_form: str | None = None  # full name of suffix
+    country_or_state: str | None = None  # only if not US
+    language: str | None = None
+    liability_language_general: str | None = None
+    liability_language_specific: str | None = None
+    member_language: str | None = None
+    cite_language: str | None = None
+    problem_basic_question: str | None = None
+    problem_follow_up_question: str | None = None
+    possible_answers: list[str] | None = None
 
 
-def pick_a_an(entity):
-    if entity[0] in ["a", "e", "i", "o", "u", "A", "E", "I", "O", "U", "8"]:
-        return "an"
-    else:
-        return "a"
+def pick_a_an(text):
+    if text[0] in {'a', 'e', 'i', 'o', 'u'}:
+        return 'an'
+    return 'a'
 
 
-def to_capital(input):
-    return input.capitalize()
+def to_capital(text):
+    return text.capitalize()
 
 
 def get_names():
-    gender = random.choice(["female", "male"])
-    if gender == "female":
-        name1 = random.choice(names["female_names"])
-        name2 = random.choice(names["male_names"])
+    gender = random.choice(['female', 'male'])
+    if gender == 'female':
+        name1 = random.choice(names['female_names'])
+        name2 = random.choice(names['male_names'])
     else:
-        name1 = random.choice(names["male_names"])
-        name2 = random.choice(names["female_names"])
+        name1 = random.choice(names['male_names'])
+        name2 = random.choice(names['female_names'])
 
     return name1, name2
 
 
-def create_problem_and_answers() -> tuple[str, dict, BusinessEntity, bool, bool]:
-    per_se_choice = random.choice(["per se", "eligible"])
+def create_entity_basic_details():
+    entity = BusinessEntity()
+    entity.foreign = random.choice([True, False])
+    entity.per_se = random.choice([True, False])
 
-    if per_se_choice == "per se":
-        foreign = random.choice([True, False])
-        single_member = random.choice([True, False])
-        all_members_ltd_liab = True
-        entity = pick_per_se_corporation(foreign)
-
-        liability_language = f"All members of {entity.entity_name} have limited liability."
-
-    # an eligible entity
+    if entity.per_se:
+        entity = pick_per_se_corporation(entity)
+    elif entity.foreign:
+        entity = pick_foreign_eligible_entity(entity)
     else:
-        while True:
-            foreign = random.choice([True, False])
-            single_member = random.choice([True, False])
-            all_members_ltd_liab = random.choice([True, False])
+        entity = pick_us_eligible_entity(entity)
 
-            # don't select US eligible entities with one member and unlimited liabilty
-            # foreign entities that default to DRE (unlimited liability with one member) are rare
-            # but can be found in Canada (ULCs) and France (SCIs), and possibly elsewhere
-            if not (not foreign and single_member and not all_members_ltd_liab):
-                break
-
-        entity, single_member = pick_eligible_entity(foreign, single_member, all_members_ltd_liab)
-
-        if all_members_ltd_liab:
-            liability_language = "All members of the entity have limited liability."
-        else:
-            liability_language = "At least one member of the entity has unlimited liability."
-
-    if single_member:
-        member_language = "has only one member."
+    # set the liability language
+    if entity.all_mems_ltd_liab:
+        entity.liability_language_specific = f'All members of {entity.name} have limited liability'
+        entity.liability_language_general = 'all members of the entity have limited liability'
     else:
-        member_language = "has more than one member."
+        entity.liability_language_specific = f'At least one member of {entity.name} has unlimited liability'
+        entity.liability_language_general = 'at least one member of the entity has unlimited liability'
 
-    problem_lang = f"{entity.entity_name}, {entity.entity_suffix} is organized in {entity.country} as {pick_a_an(entity.entity_type)} {entity.entity_type}. {entity.entity_name} {member_language} {liability_language} Is {entity.entity_name} eligible to check the box?"
+    # set the member language
+    if entity.single_member:
+        entity.member_language = 'has only one member'
+    else:
+        entity.member_language = 'has more than one member'
 
-    # potential answers
-    no_because_per_se = f"No, because {pick_a_an(entity.entity_type)} {entity.entity_type} organized in {entity.country} is a per se corporation."
-    yes_default_DRE = "Yes, and its default status is a disregarded entity."
-    yes_default_partnership = "Yes, and its default status is a partnership."
-    yes_default_corp = "Yes, and its default status is a corporation."
-    yes_elect_DRE = "Yes, and its elective status is a disregarded entity."
-    yes_elect_partnership = "Yes, and its elective status is a partnership."
-    yes_elect_corp = "Yes, and its elective status is a corporation."
+    # set the elect status as the opposite of the default status
+    entity.elect = not entity.default
 
-    general_explanation = f'Under <a href="{corn_reg}301.7701-3">{treas}301.7701-3(a)</a>, an entity is eligible to elect its business classification if and only if it is not classified as a corporation under <a href="{corn_reg}301.7701-2#b">{treas}301.7701-2(b)</a>--that is, if and only if it is not a per se corporation.'
-
-    general_statement_no_per_se = f"{pick_a_an(entity.entity_type).capitalize()} {entity.entity_type} is not a per se corporation under this regulation and is therefore eligible to check the box."
-
-    question_default_status = "If so, what is its default status if there is no election under the check-the-box rules?"
-
-    question_if_election = "If so, what type of entity will it be if there is an election under the check-the-box rules (that is, if the entity does not take default status under the check-the-box rules)?"
-
-    question = random.choice([question_default_status, question_if_election])
-    problem = f"{problem_lang} {question}"
-    judgments = {}
-
-    if question == question_default_status:
-        possible_answers = [no_because_per_se, yes_default_DRE, yes_default_partnership, yes_default_corp]
-
-        if per_se_choice == "per se":
-            correct_answer = no_because_per_se
-            for possible_answer in possible_answers:
-                if possible_answer == correct_answer:
-                    if foreign:
-                        citation = f"{treas}301.7701-2(b)(8)"
-                    else:
-                        citation = f"{treas}301.7701-2(b)(1)"
-
-                    explanation = f'<p {style_green}>That is correct. {general_explanation} {to_capital(pick_a_an(entity.entity_type))} {entity.entity_type} organized in {entity.country} is a per se corporation under <a href="{corn_reg}301.7701-2#b">{citation}</a>.</p>'
-
-                # user selected wrong answer
-                else:
-                    explanation = f'<p {style_red}>Consider what constitutes a per se corporation, as described in <a href="{corn_reg}301.7701-2#b">{treas}301.7701-2(b)</a>.</p>'
-
-                judgments[possible_answer] = explanation
-        # ------------------------------------------------
-
-        if per_se_choice == "eligible":
-            correct_answer = f"Yes, and its default status is {pick_a_an(entity.default_choice)} {entity.default_choice}."
-            for possible_answer in possible_answers:
-
-                if foreign:
-                    if possible_answer == correct_answer:
-                        explanation = f'<p {style_green}>That is correct. {general_explanation} {general_statement_no_per_se} <a href="{corn_reg}301.7701-3#b">{treas}301.7701-3(b)(2)(i)</a> states that a foreign entity in which {liability_language[:-1].lower()} and that {member_language[:-1].lower()} defaults to {pick_a_an(entity.default_choice)} {entity.default_choice}.</p>'
-                    elif possible_answer == no_because_per_se:
-                        explanation = f'<p {style_red}>Consider what constitutes a per se corporation, as described in <a href="{corn_reg}301.7701-2#b">{treas}301.7701-2(b)</a>.</p>'
-                    else:
-                        explanation = f'<p {style_red}>Consider the default status discussed in <a href="{corn_reg}301.7701-3#b">{treas}301.7701-3(b)(2)(i)</a>. Focus on how many members the entity has and whether any member has unlimited liability.</p>'
-
-                # US entity
-                else:
-                    if possible_answer == correct_answer:
-                        explanation = f'<p {style_green}>That is correct. {general_explanation} {general_statement_no_per_se} <a href="{corn_reg}301.7701-3#b">{treas}301.7701-3(b)(1)</a> states a domestic (U.S.) entity which {member_language[:-1].lower()} defaults to {pick_a_an(entity.default_choice)} {entity.default_choice}.</p>'
-                    elif possible_answer == no_because_per_se:
-                        explanation = f'<p {style_red}>Consider what constitutes a per se corporation, as described in <a href="{corn_reg}301.7701-2#b">{treas}301.7701-2(b)</a>.</p>'
-                    else:
-                        explanation = f'<p {style_red}>Consider the default status discussed in <a href="{corn_reg}301.7701-3#b">{treas}301.7701-3(b)(1)</a>. Focus on how many members the entity has.</p>'
-                judgments[possible_answer] = explanation
-        # ------------------------------------------------
-
-    if question == question_if_election:
-        possible_answers = [no_because_per_se, yes_elect_DRE, yes_elect_partnership, yes_elect_corp]
-
-        if per_se_choice == "per se":
-            correct_answer = no_because_per_se
-            for possible_answer in possible_answers:
-                if possible_answer == correct_answer:
-                    if foreign:
-                        citation = f"{treas}301.7701-2(b)(8)"
-                    else:
-                        citation = f"{treas}301.7701-2(b)(1)"
-
-                    explanation = f'<p {style_green}>That is correct. {general_explanation} {to_capital(pick_a_an(entity.entity_type))} {entity.entity_type} organized in {entity.country} is a per se corporation under <a href="{corn_reg}301.7701-2#b">{citation}</a>.</p>'
-
-                else:
-                    explanation = f'<p {style_red}>Consider what constitutes a per se corporation, as described in <a href="{corn_reg}301.7701-2#b">{treas}301.7701-2(b)</a>.</p>'
-
-                judgments[possible_answer] = explanation
-        # ------------------------------------------------
-
-        if per_se_choice == "eligible":
-            correct_answer = f"Yes, and its elective status is {pick_a_an(entity.elective_choice)} {entity.elective_choice}."
-            for possible_answer in possible_answers:
-                if foreign:
-                    if possible_answer == correct_answer:
-                        if liability_language == "At least one member of the entity has unlimited liability.":
-                            explanation = f'<p {style_green}>That is correct. {general_explanation} {general_statement_no_per_se} <a href="{corn_reg}301.7701-3#b_2">{treas}301.7701-3(b)(2)(i)</a> states that a foreign entity in which {liability_language[:-1].lower()} may elect to be {pick_a_an(entity.elective_choice)} {entity.elective_choice}.</p>'
-                        else:
-                            explanation = f'<p {style_green}>That is correct. {general_explanation} {general_statement_no_per_se} <a href="{corn_reg}301.7701-3#b_2">{treas}301.7701-3(b)(2)(i)</a> states that a foreign entity in which {liability_language[:-1].lower()} and that {member_language[:-1].lower()} may elect to be {pick_a_an(entity.elective_choice)} {entity.elective_choice}.</p>'
-                    elif possible_answer == no_because_per_se:
-                        explanation = f'<p {style_red}>Consider what constitutes a per se corporation, as described in <a href="{corn_reg}301.7701-2#b">{treas}301.7701-2(b)</a>.</p>'
-                    else:
-                        explanation = f'<p {style_red}>Consider the elective status discussed in <a href="{corn_reg}301.7701-3">{treas}301.7701-3(a) and (b)</a>. Focus on how many members the entity has and whether any member has unlimited liability.</p>'
-
-                # US entity
-                else:
-                    if possible_answer == correct_answer:
-                        explanation = f'<p {style_green}>That is correct. {general_explanation} {general_statement_no_per_se} <a href="{corn_reg}301.7701-3#b">{treas}301.7701-3(b)(1)</a> states a domestic (U.S.) entity which is not a per se corporation may, regardless of its number of members, elect into {pick_a_an(entity.elective_choice)} {entity.elective_choice}.</p>'
-                    elif possible_answer == no_because_per_se:
-                        explanation = f'<p {style_red}>Consider what constitutes a per se corporation, as described in <a href="{corn_reg}301.7701-2#b">{treas}301.7701-2(b)</a>.</p>'
-                    else:
-                        explanation = f'<p {style_red}>Consider the elective status discussed in <a href="{corn_reg}301.7701-3">{treas}301.7701-3(a)(1)</a> for domestic (U.S.) entities.</p>'
-                judgments[possible_answer] = explanation
-
-    return problem, judgments, entity, foreign, single_member
+    return entity
 
 
-def pick_per_se_corporation(foreign) -> BusinessEntity:
-    if foreign:
-        # some countries do not have these (e.g., BVI); iterate through countries until you find one that does
+def pick_per_se_corporation(entity: BusinessEntity):
+    if entity.foreign:
+        # some countries do not have per se corps (e.g., BVI)
+        # iterate through countries until you find one that does
         while True:
             selected_country = random.choice(country_data)
-            if selected_country["per se corporation"]:
+            if selected_country['per se corporation']:
                 break
-        country = selected_country["country_name"]
-        entity_type = selected_country["per se corporation"]
-        entity_suffix = selected_country["per se corporation abbreviation"]
-        language = selected_country["language"]
+        entity.country_or_state = selected_country['country_name']
+        entity.type_long_form = selected_country['per se corporation']
+        entity.type_short_form = selected_country['per se corporation abbreviation']
+        entity.language = selected_country['language']
 
     # a US entity
     else:
-        country = random.choice(states)
-        entity_type = US_data["per se corporation"]
-        entity_suffix = random.choice(US_data["per se corporation abbreviations"])
-        language = "English"
+        entity.country_or_state = random.choice(states)
+        entity.type_long_form = US_data['per se corporation']
+        entity.type_short_form = random.choice(US_data['per se corporation abbreviations'])
+        entity.language = US_data['language']  # 'English'
 
-    entity_name = random.choice(animals_by_country[language])
-    default_choice = ""
-    elective_choice = ""
+    entity.all_mems_ltd_liab = True  # all per se corps have ltd liab
+    entity.single_member = random.choice([True, False])  # doesn't really matter here
+    entity.default = random.choice([True, False])  # doesn't really matter here
+    entity.name = random.choice(animals_by_country[entity.language])
 
-    return BusinessEntity(country, entity_type, entity_suffix, entity_name, default_choice, elective_choice)
+    return entity
 
 
-def pick_eligible_entity(foreign, single_member, all_members_ltd_liab) -> tuple[BusinessEntity, bool]:
-    if foreign and all_members_ltd_liab:  # e.g., foreign LLC or LLP
-        # some countries do not have these (e.g., Canada and NZ); iterate through countries until you find one that does
+def pick_foreign_eligible_entity(entity: BusinessEntity):
+    entity.all_mems_ltd_liab = random.choice([True, False])
+    entity.single_member = random.choice([True, False])
+    entity.default = random.choice([True, False])
+
+    if entity.all_mems_ltd_liab:  # e.g., foreign LLC or LLP
         while True:
             selected_country = random.choice(country_data)
-            country = selected_country["country_name"]
-            entity_type_dict = random.choice(selected_country["eligible with limited liability"])
-            if entity_type_dict["name"]:
+
+            # usually only one of these, but some have two
+            # Chile (SRL & SpA), France (SAS & SARL), and Singapore (Pte. Ltd & LLP)
+            type_of_entity = random.choice(selected_country['eligible with limited liability'])
+
+            # some countries do not have elig. entities with ltd. liab (e.g., Canada and NZ)
+            # if there is a name for the elig. entity with ltd. liab, then one exists and pick that cn
+            if type_of_entity['name']:
                 break
-        entity_type = entity_type_dict["name"]
-        entity_suffix = entity_type_dict["abbreviation"]
-        entity_name = random.choice(animals_by_country[selected_country["language"]])
-        default_choice = "corporation"
+        entity.country_or_state = selected_country['country_name']
+        entity.type_long_form = type_of_entity['name']
+        entity.type_short_form = type_of_entity['abbreviation']
+        entity.language = selected_country['language']
+
+        entity.name = random.choice(animals_by_country[entity.language])
 
         # LLPs cannot have a single member
-        if entity_suffix == "LLP":
-            single_member = False
+        if entity.type_short_form in ['LLP']:
+            entity.single_member = False
 
-        if single_member:
-            elective_choice = "disregarded entity"
-        else:
-            elective_choice = "partnership"
-
-    elif foreign and not all_members_ltd_liab:  # e.g., foreign GP, LP, ULC, or SCI
+    else:  # not all members have limited liability (e.g., foreign GP, LP, ULC, or SCI)
         # some countries do not have these; iterate through countries until you find one that does
         while True:
             selected_country = random.choice(country_data)
-            country = selected_country["country_name"]
-            entity_type_dict = random.choice(selected_country["eligible with unlimited liability"])
-            if entity_type_dict["name"]:
+
+            # Canada (ULC), Colombia (SC), and France (SCI) have one
+            # Cayman Islands (GP, LP), Singapore (GP, LP) and the UK (GP, LP) have two
+            type_of_entity = random.choice(selected_country['eligible with unlimited liability'])
+
+            # if there is a name for the elig entity with unltd liab, then one exists and pick that cn
+            if type_of_entity['name']:
                 break
-        entity_type = entity_type_dict["name"]
-        entity_suffix = entity_type_dict["abbreviation"]
-        entity_name = random.choice(animals_by_country[selected_country["language"]])
+        entity.country_or_state = selected_country['country_name']
+        entity.type_long_form = type_of_entity['name']
+        entity.type_short_form = type_of_entity['abbreviation']
+        entity.language = selected_country['language']
+        entity.name = random.choice(animals_by_country[entity.language])
 
-        # only ULCs and SCIs can be single member entities; if not a ULC or SCI, make multi-member
-        if entity_suffix not in ["ULC", "SCI"]:
-            single_member = False
+        # # only ULCs, SCs, and SCIs can generally be single member entities with unltd liab
+        # if not a ULC, SC, or SCI, make multi-member
+        if entity.type_short_form not in ['ULC', 'SC', 'SCI']:
+            entity.single_member = False
 
-        if single_member:
-            default_choice = "disregarded entity"
-        else:
-            default_choice = "partnership"
-        elective_choice = "corporation"
-
-    elif not foreign and all_members_ltd_liab:  # e.g., US LLC or LLP
-        country = random.choice(states)
-        entity_type_dict = random.choice(US_data["eligible with limited liability"])
-        entity_type = entity_type_dict["name"]
-        entity_suffix = entity_type_dict["abbreviation"]
-        entity_name = random.choice(animals_by_country["English"])
-
-        # LLPs cannot have a single member
-        if entity_suffix == "LLP":
-            single_member = False
-
-        if single_member:
-            default_choice = "disregarded entity"
-        else:
-            default_choice = "partnership"
-        elective_choice = "corporation"
-
-    elif not foreign and not all_members_ltd_liab:  # e.g., US GP or LP
-        country = random.choice(states)
-        entity_type_dict = random.choice(US_data["eligible with unlimited liability"])
-        entity_type = entity_type_dict["name"]
-        entity_suffix = entity_type_dict["abbreviation"]
-        entity_name = random.choice(animals_by_country["English"])
-        if single_member:
-            default_choice = "disregarded entity"
-        else:
-            default_choice = "partnership"
-        elective_choice = "corporation"
-
-    entity = BusinessEntity(country, entity_type, entity_suffix, entity_name, default_choice, elective_choice)
-
-    return entity, single_member
+    return entity
 
 
-class Config:
-    SECRET_KEY = os.getenv("FLASK_SECRET_KEY")
+def pick_us_eligible_entity(entity: BusinessEntity):
+    entity.default = random.choice([True, False])
+    entity.single_member = random.choice([True, False])
+
+    # whether all members have ltd liab matters here only to determ the type of entity chosen
+    entity.all_mems_ltd_liab = random.choice([True, False])
+
+    if entity.all_mems_ltd_liab:
+        type_of_entity = random.choice(US_data['eligible with limited liability'])  # LLC or LLP
+    else:
+        type_of_entity = random.choice(US_data['eligible with unlimited liability'])  # GP or LP
+
+    entity.type_long_form = type_of_entity['name']
+    entity.type_short_form = type_of_entity['abbreviation']
+    entity.country_or_state = random.choice(states)
+    entity.language = US_data['language']  # 'English'
+    entity.name = random.choice(animals_by_country[entity.language])
+
+    # LLPs, GPs, and LPs generally cannot have a single member
+    if entity.type_short_form in ['LLP', 'GP', 'LP']:
+        entity.single_member = False
+
+    return entity
 
 
-treas = "Treas. Reg. §"
-corn_reg = "https://www.law.cornell.edu/cfr/text/26/"
-style_green = 'style="background-color: rgba(193, 254, 93, 0.5);"'
-style_red = 'style="background-color: rgba(254, 113, 93, 0.5);"'
-
-app = Flask(__name__)
-load_dotenv()
-app.config.from_object(Config)
+def create_basic_question(entity: BusinessEntity):
+    entity.problem_basic_question = f'{entity.name}, {entity.type_short_form} is organized in {entity.country_or_state} as {pick_a_an(entity.type_long_form.lower())} {entity.type_long_form}. {entity.name}, {entity.type_short_form} {entity.member_language}. {entity.liability_language_specific}. Is {entity.name}, {entity.type_short_form} eligible to check the box?'
+    return entity
 
 
-@app.errorhandler(404)
-def page_not_found(e):
-    # Redirect to another page (e.g., home page or a custom 404 page)
-    return redirect("https://www.andrewmitchel.com/resources.php")
+def create_follow_up_question(entity: BusinessEntity):
+    if entity.default:
+        entity.problem_follow_up_question = 'If so, what is its default status if there is no election under the check-the-box rules?'
+    else:
+        entity.problem_follow_up_question = 'If so, what type of entity will it be if there is an election under the check-the-box rules (that is, if the entity does not take default status under the check-the-box rules)?'
+    return entity
 
 
-@app.route("/check_the_box")
+def set_possible_answers(entity: BusinessEntity, no_because_per_se):
+    if entity.default:
+        entity.possible_answers = [no_because_per_se, yes_default_dre, yes_default_pship, yes_default_corp]
+    else:  # an election was made
+        entity.possible_answers = [no_because_per_se, yes_elect_dre, yes_elect_pship, yes_elect_corp]
+    return entity
+
+
+def create_responses_per_se(entity: BusinessEntity, correct_per_se):
+    responses = {}
+    responses[entity.possible_answers[0]] = correct_per_se
+    responses[entity.possible_answers[1]] = wrong_per_se
+    responses[entity.possible_answers[2]] = wrong_per_se
+    responses[entity.possible_answers[3]] = wrong_per_se
+    return responses
+
+
+def create_responses_elig_fgn_default(entity: BusinessEntity, correct_elig_fgn_default):
+    responses = {}
+    responses[entity.possible_answers[0]] = wrong_per_se
+    if entity.all_mems_ltd_liab:
+        responses[entity.possible_answers[1]] = wrong_elig_fgn_default
+        responses[entity.possible_answers[2]] = wrong_elig_fgn_default
+        responses[entity.possible_answers[3]] = correct_elig_fgn_default
+    else:  # unlimited liability
+        if entity.single_member:
+            responses[entity.possible_answers[1]] = correct_elig_fgn_default
+            responses[entity.possible_answers[2]] = wrong_elig_fgn_default
+        else:  # multi-member
+            responses[entity.possible_answers[1]] = wrong_elig_fgn_default
+            responses[entity.possible_answers[2]] = correct_elig_fgn_default
+        responses[entity.possible_answers[3]] = wrong_elig_fgn_default
+    return responses
+
+
+def create_responses_elig_fgn_elect(entity: BusinessEntity, correct_elig_fgn_elect):
+    responses = {}
+    responses[entity.possible_answers[0]] = wrong_per_se
+    if entity.all_mems_ltd_liab:
+        if entity.single_member:
+            responses[entity.possible_answers[1]] = correct_elig_fgn_elect
+            responses[entity.possible_answers[2]] = wrong_elig_fgn_elect
+        else:  # multi-member
+            responses[entity.possible_answers[1]] = wrong_elig_fgn_elect
+            responses[entity.possible_answers[2]] = correct_elig_fgn_elect
+        responses[entity.possible_answers[3]] = wrong_elig_fgn_elect
+    else:  # unlimited liability
+        responses[entity.possible_answers[1]] = wrong_elig_fgn_elect
+        responses[entity.possible_answers[2]] = wrong_elig_fgn_elect
+        responses[entity.possible_answers[3]] = correct_elig_fgn_elect
+    return responses
+
+
+def create_responses_elig_us_default(entity: BusinessEntity, correct_elig_us_default):
+    responses = {}
+    responses[entity.possible_answers[0]] = wrong_per_se
+    if entity.single_member:
+        responses[entity.possible_answers[1]] = correct_elig_us_default
+        responses[entity.possible_answers[2]] = wrong_elig_us_default
+    else:  # multi-member
+        responses[entity.possible_answers[1]] = wrong_elig_us_default
+        responses[entity.possible_answers[2]] = correct_elig_us_default
+    responses[entity.possible_answers[3]] = wrong_elig_us_default
+    return responses
+
+
+def create_responses_elig_us_elect(entity: BusinessEntity, correct_elig_us_elect):
+    responses = {}
+    responses[entity.possible_answers[0]] = wrong_per_se
+    responses[entity.possible_answers[1]] = wrong_elig_us_elect
+    responses[entity.possible_answers[2]] = wrong_elig_us_elect
+    responses[entity.possible_answers[3]] = correct_elig_us_elect
+    return responses
+
+
+def create_entity_and_responses():
+    entity = create_entity_basic_details()
+    entity = create_basic_question(entity)
+    entity = create_follow_up_question(entity)
+
+    # set the variable potential answer
+    no_because_per_se = f'No, because {pick_a_an(entity.type_long_form.lower())} {entity.type_long_form} organized in {entity.country_or_state} is a per se corporation.'
+
+    # create the possible answers
+    entity = set_possible_answers(entity, no_because_per_se)
+
+    # variable response components
+    genl_stmt_no_per_se = f'{pick_a_an(entity.type_long_form.lower()).capitalize()} {entity.type_long_form} is not a per se corporation under this regulation and is therefore eligible to check the box.'
+
+    correct_per_se = f'<p {style_green}>That is correct. {genl_explanation} {to_capital(pick_a_an(entity.type_long_form.lower()))} {entity.type_long_form} organized in {entity.country_or_state} is a per se corporation under {cite_per_se_foreign if entity.foreign else cite_per_se_us}.</p>'
+
+    elig_fgn_default_status = 'corporation' if entity.all_mems_ltd_liab else 'disregarded entity' if entity.single_member else 'partnership'
+    elig_fgn_elect_status = (
+        'corporation' if not entity.all_mems_ltd_liab else 'disregarded entity' if entity.single_member else 'partnership'
+    )
+    elig_us_default_status = 'disregarded entity' if entity.single_member else 'partnership'
+    elig_us_elect_status = 'corporation'
+
+    correct_elig_fgn_default = f'<p {style_green}>That is correct. {genl_explanation} {genl_stmt_no_per_se} {cite_elig_fgn_default} states that a foreign entity in which {entity.liability_language_general} and that {entity.member_language} defaults to {pick_a_an(elig_fgn_default_status)} {elig_fgn_default_status}.</p>'
+
+    correct_elig_fgn_elect = f'<p {style_green}>That is correct. {genl_explanation} {genl_stmt_no_per_se} {cite_elig_fgn_elect_correct} states that a foreign entity in which {entity.liability_language_general} and that {entity.member_language} may elect to be {pick_a_an(elig_fgn_elect_status)} {elig_fgn_elect_status}.</p>'
+
+    correct_elig_us_default = f'<p {style_green}>That is correct. {genl_explanation} {genl_stmt_no_per_se} {cite_elig_us_default_or_elect} states a domestic (U.S.) entity which {entity.member_language} defaults to {pick_a_an(elig_us_default_status)} {elig_us_default_status}.</p>'
+
+    correct_elig_us_elect = f'<p {style_green}>That is correct. {genl_explanation} {genl_stmt_no_per_se} {cite_elig_us_default_or_elect} states a domestic (U.S.) entity which is not a per se corporation may, regardless of its number of members, elect into {pick_a_an(elig_us_elect_status)} {elig_us_elect_status}.</p>'
+
+    # create the responses
+    if entity.per_se:
+        responses = create_responses_per_se(entity, correct_per_se)
+    elif entity.foreign and entity.default:
+        responses = create_responses_elig_fgn_default(entity, correct_elig_fgn_default)
+    elif entity.foreign and entity.elect:
+        responses = create_responses_elig_fgn_elect(entity, correct_elig_fgn_elect)
+    elif not entity.foreign and entity.default:
+        responses = create_responses_elig_us_default(entity, correct_elig_us_default)
+    elif not entity.foreign and entity.elect:
+        responses = create_responses_elig_us_elect(entity, correct_elig_us_elect)
+
+    return entity, responses
+
+
+@app.route('/resources/practice/check_the_box')
 def index():
-    name1, name2 = get_names()
-    problem, judgments, entity, foreign, single_member = create_problem_and_answers()
+    member_name1, member_name2 = get_names()
+    entity, responses = create_entity_and_responses()
     return render_template(
-        "index.html",
-        problem=problem,
-        judgments=judgments,
+        'index_new.html',
+        problem=entity.problem_basic_question + ' ' + entity.problem_follow_up_question,
+        responses=responses,
         entity=entity,
-        foreign=foreign,
-        single_member=single_member,
-        name1=name1,
-        name2=name2,
-        canonical=f"https://www.andrewmitchel.com/resources/practice/check_the_box",
+        member_name1=member_name1,
+        member_name2=member_name2,
+        canonical='https://www.andrewmitchel.com/resources/practice/check_the_box',
     )
 
 
-if __name__ == "__main__":
-    app.run(debug=True)
-application = app
+# static & global misc strings
+treas = 'Treas. Reg. §'
+corn_reg = 'https://www.law.cornell.edu/cfr/text/26/'
+style_green = 'style="background-color: rgba(193, 254, 93, 0.5);"'
+style_red = 'style="background-color: rgba(254, 113, 93, 0.5);"'
 
-# tried to use htmx, but couldn't get mermaid to redraw the chart for Next Question
-# just made Next Question refresh the page
+# static & global citations
+cite_per_se_foreign = f'<a href="{corn_reg}301.7701-2#b">{treas}301.7701-2(b)(8)</a>'
+cite_per_se_us = f'<a href="{corn_reg}301.7701-2#b">{treas}301.7701-2(b)(1)</a>'
+cite_per_se_general = f'<a href="{corn_reg}301.7701-2#b">{treas}301.7701-2(b)</a>'
+cite_elig_fgn_default = f'<a href="{corn_reg}301.7701-3#b">{treas}301.7701-3(b)(2)(i)</a>'
+cite_elig_fgn_elect_correct = f'<a href="{corn_reg}301.7701-3#b">{treas}301.7701-3(b)(2)(i)</a>'
+cite_elig_fgn_elect_wrong = f'<a href="{corn_reg}301.7701-3">{treas}301.7701-3(a) and (b)</a>'
+cite_elig_us_default_or_elect = f'<a href="{corn_reg}301.7701-3#b">{treas}301.7701-3(b)(1)</a>'
+cite_elig_general = f'<a href="{corn_reg}301.7701-3">{treas}301.7701-3(a)</a>'
+
+# static & global potential answers
+yes_default_dre = 'Yes, and its default status is a disregarded entity.'
+yes_default_pship = 'Yes, and its default status is a partnership.'
+yes_default_corp = 'Yes, and its default status is a corporation.'
+yes_elect_dre = 'Yes, and its elective status is a disregarded entity.'
+yes_elect_pship = 'Yes, and its elective status is a partnership.'
+yes_elect_corp = 'Yes, and its elective status is a corporation.'
+
+# static & global response components
+genl_explanation = f'Under {cite_elig_general}, an entity is eligible to elect its business classification if and only if it is not classified as a corporation under {cite_per_se_general} -- that is, if and only if it is not a per se corporation.'
+
+wrong_per_se = f'<p {style_red}>Consider what constitutes a per se corporation, as described in {cite_per_se_general}.</p>'
+
+wrong_elig_fgn_default = f'<p {style_red}>Consider the default status discussed in {cite_elig_fgn_default}. Focus on how many members the entity has and whether any member has unlimited liability.</p>'
+
+wrong_elig_fgn_elect = f'<p {style_red}>Consider the elective status discussed in {cite_elig_fgn_elect_wrong}. Focus on how many members the entity has and whether any member has unlimited liability.</p>'
+
+wrong_elig_us_default = f'<p {style_red}>Consider the default status discussed in {cite_elig_us_default_or_elect}. Focus on how many members the entity has.</p>'
+
+wrong_elig_us_elect = (
+    f'<p {style_red}>Consider the elective status discussed in {cite_elig_us_default_or_elect} for domestic (U.S.) entities.</p>'
+)
+
+if __name__ == '__main__':
+    app.run(debug=False)
+application = app
