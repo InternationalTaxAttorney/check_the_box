@@ -17,15 +17,15 @@
         <div class="col-sm-5 col-md-3 col-lg-3">
             <div id="chart-container" class="mermaid">
                 graph TD
-                A(({{ name1 }})) --- C("{{ entity.entity_name }}, {{ entity.entity_suffix }}\n({{ entity.country }}{{ "" if foreign else ", USA" }})")
-                {{ "" if single_member else "B((" + name2 + ")) --- C" }}
-                style C fill:#{{ "9CF" if foreign else "FFF" }},stroke:#000,stroke-width:2px
+                A(({{ member_name1 }})) --- C("{{ entity.name }}, {{ entity.type_short_form }}\n({{ entity.country_or_state }}{{ "" if entity.foreign else ", USA" }})")
+                {{ "" if entity.single_member else "B((" + member_name2 + ")) --- C" }}
+                style C fill:#{{ "9CF" if entity.foreign else "FFF" }},stroke:#000,stroke-width:2px
             </div>
         </div>
         <div class="col-6">
             <p>&nbsp;</p>
             <p>Blue entity means foreign.</p>
-            <p>White entity means U.S.</p>
+            <p>White entity means domestic (U.S.).</p>
         </div>
     </div>
 
@@ -33,7 +33,7 @@
         <div class="col-12">
             <label for="answer-dropdown">Select your answer:</label>
             <select id="answer-dropdown">
-                {% for option in judgments.keys() %}
+                {% for option in responses.keys() %}
                     <option value="{{ loop.index0 }}">{{ option }}</option>
                 {% endfor %}
             </select>
@@ -52,7 +52,7 @@
 
     <div class="row">
         <div class="col-12">
-            {% for response in judgments.values() %}
+            {% for response in responses.values() %}
                 <div id="{{ loop.index0 }}" class="response" style="display:none;">{{ response | safe }}</div>
             {% endfor %}    
         </div>
@@ -60,7 +60,7 @@
     <hr>
     <div class="row">
         <div class="col-12">
-            <p>The code for this web page is significantly based on code created by <a href="https://www.sarahlawsky.org/">Professor Sarah Lawsky</a> on her <a href="https://www.lawskypracticeproblems.org/">practice problems page</a>.  The code for this page is licensed under the <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">GNU AGLP license</a>, and the code can be found on <a href="https://github.com/InternationalTaxAttorney/check_the_box">my Github page</a>.</p>
+            <p>The code for this web page is significantly based on code created by <a href="https://www.sarahlawsky.org/">Professor Sarah Lawsky</a> on her <a href="https://www.lawskypracticeproblems.org/">practice problems page</a>.  The code for this web page can be found on <a href="https://github.com/InternationalTaxAttorney/check_the_box">my Github page</a>.</p>
         </div>
     </div>
 
