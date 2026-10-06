@@ -32,3 +32,4 @@ line-length = 150
 
 [tool.ruff.format]
 quote-style = "single"
+line-ending = "lf"

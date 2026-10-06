@@ -1,0 +1,6 @@
+# Store and check out all text files with LF line endings, whatever the editor or tool writes.
+* text=auto eol=lf
+
+# Windows batch files need CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
