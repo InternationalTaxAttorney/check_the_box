@@ -82,7 +82,7 @@ The tests generate a few thousand random problems and check that each one has fo
 
 1. Update `version` in `pyproject.toml` and add an entry to `CHANGELOG.md`.
 2. Run the tests.
-3. Commit, tag, and push: `git tag v1.0.1` and then `git push --follow-tags`.
+3. Commit, tag, and push: `git tag -a v1.0.1 -m "v1.0.1"` and then `git push --follow-tags`. (The `-a` matters: `--follow-tags` pushes only annotated tags, so a plain `git tag v1.0.1` would be left behind.)
 4. In any site that uses the package, update the tag in its `pyproject.toml` and run `uv lock`.
 
 ## License
