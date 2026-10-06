@@ -1,3 +1,9 @@
 .env
-templates_our_header_footer/
+.venv/
 venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+dist/
+templates_our_header_footer/
