@@ -48,6 +48,7 @@ def test_page_renders(client):
     html = response.get_data(as_text=True)
     assert 'Practice Problems on Check-the-Box Rules' in html
     assert 'id="answer-dropdown"' in html
+    assert '<title>Check-the-Box Practice Problems</title>' in html
 
 
 def test_home_redirects_to_problems(client):

@@ -1,6 +1,6 @@
 [project]
 name = "check-the-box"
-version = "1.0.0"
+version = "1.0.1"
 description = "Randomly generated practice problems on the U.S. check-the-box entity classification rules, served as a Flask Blueprint"
 readme = "README.md"
 license = "AGPL-3.0-or-later"

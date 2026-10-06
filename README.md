@@ -59,7 +59,7 @@ app.register_blueprint(ctb_bp)
 
 The page template starts with `{% extends 'header_footer.html' %}` and fills `{% block content %}`. Flask searches the host app's `templates` folder before the Blueprint's, so if your app has its own `header_footer.html`, the problems page uses your site's header and footer. To change the page itself, put your own copy at `templates/check_the_box/check_the_box.html` in your app.
 
-Your `header_footer.html` should load Bootstrap 5, because the page uses Bootstrap classes. The page receives a `canonical` variable that your header can use for a `<link rel="canonical">` tag.
+Your `header_footer.html` should load Bootstrap 5, because the page uses Bootstrap classes. The page receives `title` and `canonical` variables that your header can use for the `<title>` and `<link rel="canonical">` tags.
 
 ## Development
 

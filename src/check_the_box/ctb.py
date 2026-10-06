@@ -360,6 +360,7 @@ def check_the_box():
     entity, responses = create_entity_and_responses()
     return render_template(
         'check_the_box/check_the_box.html',
+        title='Check-the-Box Practice Problems',
         problem=entity.problem_basic_question + ' ' + entity.problem_follow_up_question,
         responses=responses,
         entity=entity,

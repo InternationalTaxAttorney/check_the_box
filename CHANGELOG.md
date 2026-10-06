@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1 (2026-10-06)
+
+- Added a page title (`title` template variable), which host apps' `header_footer.html` can use for the `<title>` tag.
+
 ## 1.0.0 (2026-10-06)
 
 - Restructured as a uv-managed package (`src/check_the_box`) that exposes a Flask Blueprint (`ctb_bp`), so the same code runs on andrewmitchel.com and as a standalone app.
