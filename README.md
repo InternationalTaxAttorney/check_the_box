@@ -46,7 +46,7 @@ The problems are served by a Flask Blueprint named `ctb` with one route, `/resou
 Add the package as a dependency, pinned to a release tag:
 
 ```
-uv add "check-the-box @ git+https://github.com/InternationalTaxAttorney/check_the_box@v1.0.0"
+uv add "check-the-box @ git+https://github.com/InternationalTaxAttorney/check_the_box@v1.1.0"
 ```
 
 Then register the Blueprint:
@@ -60,6 +60,12 @@ app.register_blueprint(ctb_bp)
 The page template starts with `{% extends 'header_footer.html' %}` and fills `{% block content %}`. Flask searches the host app's `templates` folder before the Blueprint's, so if your app has its own `header_footer.html`, the problems page uses your site's header and footer. To change the page itself, put your own copy at `templates/check_the_box/check_the_box.html` in your app.
 
 Your `header_footer.html` should load Bootstrap 5, because the page uses Bootstrap classes. The page receives `title` and `canonical` variables that your header can use for the `<title>` and `<link rel="canonical">` tags.
+
+By default, `canonical` is the page's own URL as Flask sees it. Behind a proxy that can come out as `http://` or the wrong host, so set it explicitly:
+
+```python
+app.config['CTB_CANONICAL_URL'] = 'https://www.example.com/resources/check_the_box'
+```
 
 ## Development
 
@@ -80,9 +86,9 @@ The tests generate a few thousand random problems and check that each one has fo
 
 ### Releasing a new version
 
-1. Update `version` in `pyproject.toml` and add an entry to `CHANGELOG.md`.
+1. Update `version` in `pyproject.toml`, add an entry to `CHANGELOG.md`, and update the tag in the `uv add` example above.
 2. Run the tests.
-3. Commit, tag, and push: `git tag -a v1.0.1 -m "v1.0.1"` and then `git push --follow-tags`. (The `-a` matters: `--follow-tags` pushes only annotated tags, so a plain `git tag v1.0.1` would be left behind.)
+3. Commit, tag, and push: `git tag -a v1.1.0 -m "v1.1.0"` and then `git push --follow-tags`. (The `-a` matters: `--follow-tags` pushes only annotated tags, so a plain `git tag v1.1.0` would be left behind.)
 4. In any site that uses the package, update the tag in its `pyproject.toml` and run `uv lock`.
 
 ## License

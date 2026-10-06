@@ -8,7 +8,7 @@ import random
 from dataclasses import dataclass
 from pathlib import Path
 
-from flask import Blueprint, render_template
+from flask import Blueprint, current_app, render_template, url_for
 
 # template_folder lets the Blueprint find its own templates; the host app's templates folder is searched first,
 # so a host app's header_footer.html (or check_the_box/check_the_box.html) overrides the one in this package
@@ -35,6 +35,44 @@ country_data = load_json('country_data.json')
 
 # names of per se, elig with ltd liab, elig with unltd liab for US only
 US_data = load_json('us_data.json')
+
+# static & global misc strings
+treas = 'Treas. Reg. §'
+corn_reg = 'https://www.law.cornell.edu/cfr/text/26/'
+style_green = 'style="background-color: rgba(193, 254, 93, 0.5);"'
+style_red = 'style="background-color: rgba(254, 113, 93, 0.5);"'
+
+# static & global citations
+cite_per_se_foreign = f'<a href="{corn_reg}301.7701-2#b">{treas}301.7701-2(b)(8)</a>'
+cite_per_se_us = f'<a href="{corn_reg}301.7701-2#b">{treas}301.7701-2(b)(1)</a>'
+cite_per_se_general = f'<a href="{corn_reg}301.7701-2#b">{treas}301.7701-2(b)</a>'
+cite_elig_fgn_default = f'<a href="{corn_reg}301.7701-3#b">{treas}301.7701-3(b)(2)(i)</a>'
+cite_elig_fgn_elect_wrong = f'<a href="{corn_reg}301.7701-3">{treas}301.7701-3(a) and (b)</a>'
+cite_elig_us_default_or_elect = f'<a href="{corn_reg}301.7701-3#b">{treas}301.7701-3(b)(1)</a>'
+cite_elig_general = f'<a href="{corn_reg}301.7701-3">{treas}301.7701-3(a)</a>'
+
+# static & global potential answers
+yes_default_dre = 'Yes, and its default status is a disregarded entity.'
+yes_default_pship = 'Yes, and its default status is a partnership.'
+yes_default_corp = 'Yes, and its default status is a corporation.'
+yes_elect_dre = 'Yes, and its elective status is a disregarded entity.'
+yes_elect_pship = 'Yes, and its elective status is a partnership.'
+yes_elect_corp = 'Yes, and its elective status is a corporation.'
+
+# static & global response components
+genl_explanation = f'Under {cite_elig_general}, an entity is eligible to elect its business classification if and only if it is not classified as a corporation under {cite_per_se_general} -- that is, if and only if it is not a per se corporation.'
+
+wrong_per_se = f'<p {style_red}>That is incorrect. Consider what constitutes a per se corporation, as described in {cite_per_se_general}.</p>'
+
+wrong_elig_fgn_default = f'<p {style_red}>That is incorrect. Consider the default status discussed in {cite_elig_fgn_default}. Focus on how many members the entity has and whether any member has unlimited liability.</p>'
+
+wrong_elig_fgn_elect = f'<p {style_red}>That is incorrect. Consider the elective status discussed in {cite_elig_fgn_elect_wrong}. Focus on how many members the entity has and whether any member has unlimited liability.</p>'
+
+wrong_elig_us_default = f'<p {style_red}>That is incorrect. Consider the default status discussed in {cite_elig_us_default_or_elect}. Focus on how many members the entity has.</p>'
+
+wrong_elig_us_elect = (
+    f'<p {style_red}>That is incorrect. Consider the elective status discussed in {cite_elig_us_default_or_elect} for domestic (U.S.) entities.</p>'
+)
 
 
 @dataclass(slots=True)
@@ -63,10 +101,6 @@ def pick_a_an(text):
     if text[0] in {'a', 'e', 'i', 'o', 'u'}:
         return 'an'
     return 'a'
-
-
-def to_capital(text):
-    return text.capitalize()
 
 
 def get_names():
@@ -322,7 +356,7 @@ def create_entity_and_responses():
     # variable response components
     genl_stmt_no_per_se = f'{pick_a_an(entity.type_long_form.lower()).capitalize()} {entity.type_long_form} is not a per se corporation under this regulation and is therefore eligible to check the box.'
 
-    correct_per_se = f'<p {style_green}>That is correct. {genl_explanation} {to_capital(pick_a_an(entity.type_long_form.lower()))} {entity.type_long_form} organized in {entity.country_or_state} is a per se corporation under {cite_per_se_foreign if entity.foreign else cite_per_se_us}.</p>'
+    correct_per_se = f'<p {style_green}>That is correct. {genl_explanation} {pick_a_an(entity.type_long_form.lower()).capitalize()} {entity.type_long_form} organized in {entity.country_or_state} is a per se corporation under {cite_per_se_foreign if entity.foreign else cite_per_se_us}.</p>'
 
     elig_fgn_default_status = 'corporation' if entity.all_mems_ltd_liab else 'disregarded entity' if entity.single_member else 'partnership'
     elig_fgn_elect_status = (
@@ -333,7 +367,7 @@ def create_entity_and_responses():
 
     correct_elig_fgn_default = f'<p {style_green}>That is correct. {genl_explanation} {genl_stmt_no_per_se} {cite_elig_fgn_default} states that a foreign entity in which {entity.liability_language_general} and that {entity.member_language} defaults to {pick_a_an(elig_fgn_default_status)} {elig_fgn_default_status}.</p>'
 
-    correct_elig_fgn_elect = f'<p {style_green}>That is correct. {genl_explanation} {genl_stmt_no_per_se} {cite_elig_fgn_elect_correct} states that a foreign entity in which {entity.liability_language_general} and that {entity.member_language} may elect to be {pick_a_an(elig_fgn_elect_status)} {elig_fgn_elect_status}.</p>'
+    correct_elig_fgn_elect = f'<p {style_green}>That is correct. {genl_explanation} {genl_stmt_no_per_se} {cite_elig_fgn_default} states that a foreign entity in which {entity.liability_language_general} and that {entity.member_language} may elect to be {pick_a_an(elig_fgn_elect_status)} {elig_fgn_elect_status}.</p>'
 
     correct_elig_us_default = f'<p {style_green}>That is correct. {genl_explanation} {genl_stmt_no_per_se} {cite_elig_us_default_or_elect} states a domestic (U.S.) entity which {entity.member_language} defaults to {pick_a_an(elig_us_default_status)} {elig_us_default_status}.</p>'
 
@@ -351,6 +385,11 @@ def create_entity_and_responses():
     elif not entity.foreign and entity.elect:
         responses = create_responses_elig_us_elect(entity, correct_elig_us_elect)
 
+    # shuffle the answers so the correct one isn't always in the same position
+    items = list(responses.items())
+    random.shuffle(items)
+    responses = dict(items)
+
     return entity, responses
 
 
@@ -366,45 +405,5 @@ def check_the_box():
         entity=entity,
         member_name1=member_name1,
         member_name2=member_name2,
-        canonical='https://www.andrewmitchel.com/resources/check_the_box',
+        canonical=current_app.config.get('CTB_CANONICAL_URL') or url_for('ctb.check_the_box', _external=True),
     )
-
-
-# static & global misc strings
-treas = 'Treas. Reg. §'
-corn_reg = 'https://www.law.cornell.edu/cfr/text/26/'
-style_green = 'style="background-color: rgba(193, 254, 93, 0.5);"'
-style_red = 'style="background-color: rgba(254, 113, 93, 0.5);"'
-
-# static & global citations
-cite_per_se_foreign = f'<a href="{corn_reg}301.7701-2#b">{treas}301.7701-2(b)(8)</a>'
-cite_per_se_us = f'<a href="{corn_reg}301.7701-2#b">{treas}301.7701-2(b)(1)</a>'
-cite_per_se_general = f'<a href="{corn_reg}301.7701-2#b">{treas}301.7701-2(b)</a>'
-cite_elig_fgn_default = f'<a href="{corn_reg}301.7701-3#b">{treas}301.7701-3(b)(2)(i)</a>'
-cite_elig_fgn_elect_correct = f'<a href="{corn_reg}301.7701-3#b">{treas}301.7701-3(b)(2)(i)</a>'
-cite_elig_fgn_elect_wrong = f'<a href="{corn_reg}301.7701-3">{treas}301.7701-3(a) and (b)</a>'
-cite_elig_us_default_or_elect = f'<a href="{corn_reg}301.7701-3#b">{treas}301.7701-3(b)(1)</a>'
-cite_elig_general = f'<a href="{corn_reg}301.7701-3">{treas}301.7701-3(a)</a>'
-
-# static & global potential answers
-yes_default_dre = 'Yes, and its default status is a disregarded entity.'
-yes_default_pship = 'Yes, and its default status is a partnership.'
-yes_default_corp = 'Yes, and its default status is a corporation.'
-yes_elect_dre = 'Yes, and its elective status is a disregarded entity.'
-yes_elect_pship = 'Yes, and its elective status is a partnership.'
-yes_elect_corp = 'Yes, and its elective status is a corporation.'
-
-# static & global response components
-genl_explanation = f'Under {cite_elig_general}, an entity is eligible to elect its business classification if and only if it is not classified as a corporation under {cite_per_se_general} -- that is, if and only if it is not a per se corporation.'
-
-wrong_per_se = f'<p {style_red}>Consider what constitutes a per se corporation, as described in {cite_per_se_general}.</p>'
-
-wrong_elig_fgn_default = f'<p {style_red}>Consider the default status discussed in {cite_elig_fgn_default}. Focus on how many members the entity has and whether any member has unlimited liability.</p>'
-
-wrong_elig_fgn_elect = f'<p {style_red}>Consider the elective status discussed in {cite_elig_fgn_elect_wrong}. Focus on how many members the entity has and whether any member has unlimited liability.</p>'
-
-wrong_elig_us_default = f'<p {style_red}>Consider the default status discussed in {cite_elig_us_default_or_elect}. Focus on how many members the entity has.</p>'
-
-wrong_elig_us_elect = (
-    f'<p {style_red}>Consider the elective status discussed in {cite_elig_us_default_or_elect} for domestic (U.S.) entities.</p>'
-)

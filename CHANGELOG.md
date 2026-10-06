@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0 (2026-10-06)
+
+- The answer choices are now shuffled, so the correct answer isn't always in the same position.
+- Wrong answers now start with "That is incorrect." instead of relying only on the red background.
+- The canonical URL is no longer hardcoded to andrewmitchel.com. Set `CTB_CANONICAL_URL` in the host app's config; otherwise the page's own URL is used.
+- Added `ruff` to the dev dependencies.
+- Fixed the `Corp.` abbreviation and removed unused code and data.
+
 ## 1.0.1 (2026-10-06)
 
 - Added a page title (`title` template variable), which host apps' `header_footer.html` can use for the `<title>` tag.
