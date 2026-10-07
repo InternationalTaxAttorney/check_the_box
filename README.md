@@ -46,7 +46,7 @@ The problems are served by a Flask Blueprint named `ctb` with one route, `/resou
 Add the package as a dependency, pinned to a release tag:
 
 ```
-uv add "check-the-box @ git+https://github.com/InternationalTaxAttorney/check_the_box@v1.1.0"
+uv add "check-the-box @ git+https://github.com/InternationalTaxAttorney/check_the_box@v1.1.1"
 ```
 
 Then register the Blueprint:
@@ -88,7 +88,7 @@ The tests generate a few thousand random problems and check that each one has fo
 
 1. Update `version` in `pyproject.toml`, add an entry to `CHANGELOG.md`, and update the tag in the `uv add` example above.
 2. Run the tests.
-3. Commit, tag, and push: `git tag -a v1.1.0 -m "v1.1.0"` and then `git push --follow-tags`. (The `-a` matters: `--follow-tags` pushes only annotated tags, so a plain `git tag v1.1.0` would be left behind.)
+3. Commit, tag, and push: `git tag -a v1.1.1 -m "v1.1.1"` and then `git push --follow-tags`. (The `-a` matters: `--follow-tags` pushes only annotated tags, so a plain `git tag v1.1.1` would be left behind.)
 4. In any site that uses the package, update the tag in its `pyproject.toml` and run `uv lock`.
 
 ## License

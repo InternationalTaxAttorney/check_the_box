@@ -47,7 +47,7 @@ def test_page_renders(client):
     assert response.status_code == 200
     html = response.get_data(as_text=True)
     assert 'Practice Problems on Check-the-Box Rules' in html
-    assert 'id="answer-dropdown"' in html
+    assert html.count('type="radio" name="answer"') == 4
     assert '<title>Check-the-Box Practice Problems</title>' in html
 
 

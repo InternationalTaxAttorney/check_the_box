@@ -31,12 +31,15 @@
 
     <div class="row mb-4">
         <div class="col-12">
-            <label for="answer-dropdown">Select your answer:</label>
-            <select id="answer-dropdown">
+            <fieldset id="answers">
+                <legend class="fs-6">Select your answer:</legend>
                 {% for option in responses.keys() %}
-                    <option value="{{ loop.index0 }}">{{ option }}</option>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="answer" id="answer-{{ loop.index0 }}" value="{{ loop.index0 }}">
+                        <label class="form-check-label" for="answer-{{ loop.index0 }}">{{ option }}</label>
+                    </div>
                 {% endfor %}
-            </select>
+            </fieldset>
         </div>
     </div>
     <div class="row">
@@ -51,9 +54,10 @@
 
     <div class="row">
         <div class="col-12">
+            <p id="no-answer" class="response" style="display:none;">Select an answer first.</p>
             {% for response in responses.values() %}
-                <div id="{{ loop.index0 }}" class="response" style="display:none;">{{ response | safe }}</div>
-            {% endfor %}    
+                <div id="response-{{ loop.index0 }}" class="response" style="display:none;">{{ response | safe }}</div>
+            {% endfor %}
         </div>
     </div>
     <hr>
@@ -72,15 +76,15 @@
 
 <script>
     function displayResponse() {
-        // make all four divs hidden (in case one was already displayed)
+        // hide any response already displayed
         const responseDivs = document.querySelectorAll('.response');
         responseDivs.forEach(div => {
             div.style.display = "none";
         });
 
-        // get the number of the answer selected and display the response
-        const selectedOption = document.getElementById('answer-dropdown').value;
-        const responseDiv = document.getElementById(selectedOption);
+        // display the response for the selected answer (or a reminder if none is selected)
+        const selected = document.querySelector('input[name="answer"]:checked');
+        const responseDiv = document.getElementById(selected ? 'response-' + selected.value : 'no-answer');
         responseDiv.style.display = "block";
     }
     function refreshPage() {

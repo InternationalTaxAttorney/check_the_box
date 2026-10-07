@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1 (2026-10-06)
+
+- The answer choices are now radio buttons instead of a dropdown. No answer is preselected; submitting without one shows "Select an answer first."
+
 ## 1.1.0 (2026-10-06)
 
 - The answer choices are now shuffled, so the correct answer isn't always in the same position.
